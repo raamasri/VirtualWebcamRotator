@@ -2,6 +2,7 @@ import Foundation
 import AVFoundation
 import CoreMediaIO
 import CoreMedia
+import IOSurface
 
 class VirtualCameraManager: NSObject {
     private var captureSession: AVCaptureSession?
@@ -128,7 +129,7 @@ class VirtualCameraManager: NSObject {
     }
     
     private func setupVirtualCamera() {
-        // Enable CoreMediaIO device access
+        // Enable CoreMediaIO device access for screen capture devices
         var property = CMIOObjectPropertyAddress(
             mSelector: CMIOObjectPropertySelector(kCMIOHardwarePropertyAllowScreenCaptureDevices),
             mScope: CMIOObjectPropertyScope(kCMIOObjectPropertyScopeGlobal),
@@ -139,9 +140,40 @@ class VirtualCameraManager: NSObject {
         let dataSize: UInt32 = 4
         let zero: UInt32 = 0
         
-        CMIOObjectSetPropertyData(CMIOObjectID(kCMIOObjectSystemObject), &property, zero, nil, dataSize, &allow)
+        let result = CMIOObjectSetPropertyData(CMIOObjectID(kCMIOObjectSystemObject), &property, zero, nil, dataSize, &allow)
         
-        print("Virtual camera system initialized")
+        if result != kCMIOHardwareNoError {
+            print("Failed to enable CoreMediaIO screen capture devices: \(result)")
+        } else {
+            print("CoreMediaIO screen capture devices enabled")
+        }
+        
+        // Create virtual camera device
+        createVirtualCameraDevice()
+    }
+    
+    private func createVirtualCameraDevice() {
+        print("Virtual camera device creation initiated")
+        
+        // Note: Creating a true virtual camera device requires a CoreMediaIO DAL plugin
+        // This is a complex process that involves:
+        // 1. Creating a system extension or plugin
+        // 2. Registering it with CoreMediaIO
+        // 3. Implementing the DAL interface
+        
+        // For this basic implementation, we'll focus on the video processing pipeline
+        // and prepare frames for virtual camera output
+        
+        // In a production version, you would typically:
+        // - Use a third-party virtual camera solution like OBS Virtual Camera
+        // - Create a proper CoreMediaIO DAL plugin
+        // - Use screen capture APIs to create a virtual device
+        
+        print("Virtual camera ready for frame processing")
+    }
+    
+    func getProcessedFrame(_ sampleBuffer: CMSampleBuffer) -> CMSampleBuffer? {
+        return videoProcessor?.processVideoFrame(sampleBuffer)
     }
 }
 
@@ -152,9 +184,26 @@ extension VirtualCameraManager: AVCaptureVideoDataOutputSampleBufferDelegate {
         
         // Process the video frame (rotation, etc.)
         if let processedBuffer = videoProcessor.processVideoFrame(sampleBuffer) {
-            // Here we would typically send the processed buffer to the virtual camera
-            // For now, we'll just log that we're processing frames
-            // In a full implementation, this would involve more complex CoreMediaIO setup
+            // Send processed frame for virtual camera output
+            // In a full implementation with DAL plugin, this would send to virtual camera
+            sendFrameToVirtualCamera(processedBuffer)
         }
+    }
+    
+    private func sendFrameToVirtualCamera(_ sampleBuffer: CMSampleBuffer) {
+        // This is where you would send the frame to your virtual camera device
+        // For demonstration purposes, we'll log frame information
+        
+        let timestamp = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
+        let timeValue = CMTimeGetSeconds(timestamp)
+        
+        if Int(timeValue * 10) % 10 == 0 { // Log every second
+            print("Processed frame ready for virtual camera - timestamp: \(String(format: "%.1f", timeValue))s, rotation: \(rotationAngle)°")
+        }
+        
+        // In a real implementation, you would:
+        // 1. Send this to your CoreMediaIO DAL plugin
+        // 2. Or use a third-party virtual camera framework
+        // 3. Or implement screen sharing mechanisms
     }
 } 

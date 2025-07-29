@@ -33,16 +33,35 @@ class VideoProcessor {
         guard angle != 0 else { return image }
         
         let radians = CGFloat(angle) * .pi / 180.0
-        let transform = CGAffineTransform(rotationAngle: radians)
+        let extent = image.extent
+        let center = CGPoint(x: extent.midX, y: extent.midY)
         
-        // Apply rotation around center
-        let rotatedImage = image.transformed(by: transform)
+        // Create rotation transform around center
+        let rotationTransform = CGAffineTransform(translationX: center.x, y: center.y)
+            .rotated(by: radians)
+            .translatedBy(x: -center.x, y: -center.y)
         
-        // Adjust the image to fit within bounds after rotation
-        let extent = rotatedImage.extent
-        let translation = CGAffineTransform(translationX: -extent.origin.x, y: -extent.origin.y)
+        // Apply rotation
+        let rotatedImage = image.transformed(by: rotationTransform)
         
-        return rotatedImage.transformed(by: translation)
+        // For 90° and 270° rotations, we need to adjust for aspect ratio change
+        if angle == 90 || angle == 270 {
+            // The image dimensions are swapped after 90°/270° rotation
+            let rotatedExtent = rotatedImage.extent
+            let translation = CGAffineTransform(
+                translationX: -rotatedExtent.origin.x,
+                y: -rotatedExtent.origin.y
+            )
+            return rotatedImage.transformed(by: translation)
+        } else {
+            // For 180° rotation, just center the image
+            let rotatedExtent = rotatedImage.extent
+            let translation = CGAffineTransform(
+                translationX: -rotatedExtent.origin.x,
+                y: -rotatedExtent.origin.y
+            )
+            return rotatedImage.transformed(by: translation)
+        }
     }
     
     private func createPixelBuffer(from image: CIImage) -> CVPixelBuffer? {
