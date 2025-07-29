@@ -10,8 +10,8 @@ class VirtualCameraManager: NSObject {
     private var videoProcessor: VideoProcessor?
     
     // Virtual camera properties
-    private var virtualCameraObjectID: CMIOObjectID = kCMIOObjectUnknown
-    private var virtualCameraStreamID: CMIOStreamID = kCMIOObjectUnknown
+    private var virtualCameraObjectID: CMIOObjectID = CMIOObjectID(kCMIOObjectUnknown)
+    private var virtualCameraStreamID: CMIOStreamID = CMIOStreamID(kCMIOObjectUnknown)
     
     private let sessionQueue = DispatchQueue(label: "com.virtualwebcam.session", qos: .userInitiated)
     
