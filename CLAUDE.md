@@ -74,5 +74,45 @@ The application must be run from Xcode or as a built .app bundle. It requires ca
 - Camera hardware access required
 - CoreMediaIO framework support
 
-### Missing Implementation
-The MenuBarController.swift file is referenced in the Xcode project but not present in the file system. This component needs to be implemented to provide the user interface for the menu bar application.
+## Usage Instructions
+
+### Running the Application
+1. Build and run the project in Xcode
+2. Grant camera permissions when prompted
+3. The app runs as a menu bar application (camera icon in menu bar)
+4. Click the menu bar icon to access controls
+
+### Menu Bar Controls
+- **Select Camera**: Choose from available cameras
+- **Rotation**: Set rotation angle (0°, 90°, 180°, 270°)
+- **Start/Stop Virtual Camera**: Control virtual camera operation
+- **Quit**: Exit the application
+
+### Testing
+Run unit tests using:
+```bash
+xcodebuild test -project VirtualWebcamRotator.xcodeproj -scheme VirtualWebcamRotator
+```
+
+## Current Implementation Status
+
+### ✅ Completed Features
+- Menu bar interface with camera selection and rotation controls
+- Video frame processing with rotation support
+- Aspect ratio handling for 90°/270° rotations
+- Camera discovery and switching
+- CoreMediaIO integration setup
+- Unit tests for core functionality
+
+### ⚠️ Important Notes
+- This implementation provides the video processing pipeline and UI
+- Creating a true virtual camera device requires a CoreMediaIO DAL plugin
+- For production use, consider integrating with existing virtual camera solutions
+- The current implementation processes frames but doesn't create an actual virtual camera device visible to other applications
+
+### 🔄 For Full Virtual Camera Functionality
+To make this work with FaceTime, Photo Booth, etc., you would need to:
+1. Create a CoreMediaIO DAL plugin (system extension)
+2. Register the plugin with the system
+3. Implement the DAL interface to provide video frames
+4. Or integrate with existing virtual camera frameworks like OBS Virtual Camera
